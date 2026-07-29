@@ -151,6 +151,11 @@ fn main() {
         println!("cargo:rustc-link-lib={}={}", kind, &stem[3..]);
         return;
     }
+
+    if target == "wasm32-unknown-unknown" {
+        build_wasm32_unknown_unknown(&src_dir);
+        return;
+    }
     // Disable -Wextra warnings - jemalloc doesn't compile free of warnings with
     // it enabled: https://github.com/jemalloc/jemalloc/issues/1196
     let compiler = cc::Build::new().extra_warnings(false).get_compiler();
@@ -391,6 +396,78 @@ fn main() {
             .compile("pthread_atfork");
         println!("cargo:rerun-if-changed=src/pthread_atfork.c");
     }
+}
+
+/// Build jemalloc for `wasm32-unknown-unknown` without configure/make.
+///
+/// Uses pregenerated headers from `configs/wasm32-unknown-unknown/` (produced
+/// by running jemalloc's configure natively and hand-editing the results for
+/// wasm: 64KiB pages, 32-bit pointers, single-threaded, purging via an
+/// `env.__wbindgen_memory_discard` wasm import that wasm-bindgen replaces with the
+/// `memory.discard` instruction from the memory-control proposal).
+///
+/// C libc headers (only headers; no libraries are linked) must be provided
+/// via `JEMALLOC_WASM_SYSROOT`, or are found under `$EMSDK` if set. The
+/// compiler follows the standard `cc` crate resolution
+/// (`CC_wasm32_unknown_unknown` etc.); a recent clang (>= 20) is required for
+/// the emscripten sysroot headers.
+fn build_wasm32_unknown_unknown(src_dir: &Path) {
+    let sysroot = read_and_watch_env("JEMALLOC_WASM_SYSROOT")
+        .map(PathBuf::from)
+        .ok()
+        .or_else(|| {
+            println!("cargo:rerun-if-env-changed=EMSDK");
+            env::var_os("EMSDK")
+                .map(|emsdk| PathBuf::from(emsdk).join("upstream/emscripten/cache/sysroot/include"))
+        })
+        .expect(
+            "building jemalloc for wasm32-unknown-unknown requires wasm libc headers: set \
+             JEMALLOC_WASM_SYSROOT to a wasm libc include directory (e.g. \
+             $EMSDK/upstream/emscripten/cache/sysroot/include or a wasi-sysroot include \
+             directory), or set EMSDK",
+        );
+    assert!(
+        sysroot.join("sys/mman.h").exists(),
+        "JEMALLOC_WASM_SYSROOT does not look like a wasm libc include directory \
+         (missing sys/mman.h): {}",
+        sysroot.display()
+    );
+
+    let jemalloc_dir = src_dir.join("jemalloc");
+    let config_dir = src_dir.join("configs/wasm32-unknown-unknown/include");
+
+    let mut sources: Vec<PathBuf> = fs::read_dir(jemalloc_dir.join("src"))
+        .expect("failed to read jemalloc src dir")
+        .filter_map(|e| {
+            let path = e.unwrap().path();
+            let name = path.file_name().unwrap().to_str().unwrap();
+            // zone.c is Darwin-only; jemalloc_cpp.cpp is excluded by --disable-cxx.
+            if name.ends_with(".c") && name != "zone.c" {
+                Some(path)
+            } else {
+                None
+            }
+        })
+        .collect();
+    sources.sort();
+    sources.push(src_dir.join("wasm-shim.c"));
+
+    let mut build = cc::Build::new();
+    build
+        .warnings(false)
+        .extra_warnings(false)
+        .flag("-isystem")
+        .flag(sysroot.as_os_str().to_str().unwrap())
+        .include(&config_dir)
+        .include(jemalloc_dir.join("include"))
+        .define("_GNU_SOURCE", None)
+        .define("_REENTRANT", None)
+        .files(sources)
+        .compile("jemalloc");
+
+    println!("cargo:rerun-if-changed=jemalloc");
+    println!("cargo:rerun-if-changed=configs/wasm32-unknown-unknown");
+    println!("cargo:rerun-if-changed=wasm-shim.c");
 }
 
 fn make_command(make_cmd: &str, build_dir: &Path, num_jobs: &str) -> Command {

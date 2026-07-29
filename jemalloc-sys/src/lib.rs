@@ -45,6 +45,13 @@
 #![allow(renamed_and_removed_lints)]
 #![deny(missing_docs, broken_intra_doc_links)]
 
+// The stock `libc` crate has no wasm32-unknown-unknown support; the C ffi
+// types come from `core` there instead.
+#[cfg(all(target_arch = "wasm32", target_os = "unknown"))]
+use core::ffi::{c_char, c_int, c_uint, c_void};
+#[cfg(all(target_arch = "wasm32", target_os = "unknown"))]
+type size_t = usize;
+#[cfg(not(all(target_arch = "wasm32", target_os = "unknown")))]
 use libc::{c_char, c_int, c_uint, c_void, size_t};
 
 // jemalloc uses `stdbool.h` to define `bool` for which the Rust equivalent is `bool`.
