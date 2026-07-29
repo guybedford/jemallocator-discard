@@ -27,6 +27,9 @@ use core::alloc::{GlobalAlloc, Layout};
 #[cfg(feature = "alloc_trait")]
 use core::ptr::NonNull;
 
+#[cfg(all(target_arch = "wasm32", target_os = "unknown"))]
+use core::ffi::{c_int, c_void};
+#[cfg(not(all(target_arch = "wasm32", target_os = "unknown")))]
 use libc::{c_int, c_void};
 
 // This constant equals _Alignof(max_align_t) and is platform-specific. It
@@ -54,7 +57,10 @@ const ALIGNOF_MAX_ALIGN_T: usize = 8;
     target_arch = "riscv32",
     target_arch = "riscv64",
     target_arch = "s390x",
-    target_arch = "sparc64"
+    target_arch = "sparc64",
+    // wasm32: clang's max_align_t is 16 and the wasm32-unknown-unknown
+    // build of jemalloc is configured with --with-lg-quantum=4.
+    target_arch = "wasm32"
 ))]
 const ALIGNOF_MAX_ALIGN_T: usize = 16;
 
