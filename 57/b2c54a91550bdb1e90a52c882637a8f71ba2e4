@@ -1,0 +1,33 @@
+jemallocator-global/Cargo.toml
+  s_b490649d60dd4b::t_cc1eba656e433c 29,41
+test-dylib/Cargo.toml
+  s_b490649d60dd4b::t_f033eea652420e 11
+jemalloc-ctl/Cargo.toml
+  s_b490649d60dd4b::t_d0d479d4a4475c 29,34
+jemallocator/Cargo.toml
+  s_5f572682adba45::t_28a33e0dc3460b 2,16-18,20,40,45
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "57b2c54a91550bdb1e90a52c882637a8f71ba2e4",
+  "prompts": {},
+  "sessions": {
+    "s_5f572682adba45": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fea42ffffffe1KslBb8C8kran5",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Guy Bedford <gbedford@cloudflare.com>"
+    },
+    "s_b490649d60dd4b": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fea42c79cffevo9V30JblSsJ5H",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Guy Bedford <gbedford@cloudflare.com>"
+    }
+  }
+}
