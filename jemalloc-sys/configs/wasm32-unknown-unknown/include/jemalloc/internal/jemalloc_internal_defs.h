@@ -450,7 +450,7 @@
 /* #undef JEMALLOC_EXPORT */
 
 /* config.malloc_conf options string. */
-#define JEMALLOC_CONFIG_MALLOC_CONF "background_thread:false,dirty_decay_ms:0,muzzy_decay_ms:0,trust_madvise:true"
+#define JEMALLOC_CONFIG_MALLOC_CONF "background_thread:false,muzzy_decay_ms:0,trust_madvise:true"
 
 /* If defined, jemalloc takes the malloc/free/etc. symbol names. */
 /* #undef JEMALLOC_IS_MALLOC */

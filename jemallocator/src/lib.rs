@@ -287,6 +287,39 @@ pub unsafe fn usable_size<T>(ptr: *const T) -> usize {
     ffi::malloc_usable_size(ptr as *const c_void)
 }
 
+/// Advances the wasm decay clock to `now_ms` (e.g. `Date.now()`) and runs a
+/// decay pass over all arenas, releasing dirty pages older than
+/// `dirty_decay_ms` via `memory.discard`.
+///
+/// wasm has no clock, so decay only progresses when the embedder pushes time
+/// through this function — typically once per event-loop turn. Between calls
+/// time is frozen and freed pages are reused without purging.
+#[cfg(target_arch = "wasm32")]
+pub fn decay_tick(now_ms: f64) {
+    extern "C" {
+        fn __jemalloc_wasm_set_time_ms(ms: f64);
+    }
+    // "arena.4096.decay": 4096 == MALLCTL_ARENAS_ALL
+    static DECAY_ALL: &[u8] = b"arena.4096.decay\0";
+    unsafe {
+        __jemalloc_wasm_set_time_ms(now_ms);
+        ffi::mallctl(
+            DECAY_ALL.as_ptr().cast(),
+            core::ptr::null_mut(),
+            core::ptr::null_mut(),
+            core::ptr::null_mut(),
+            0,
+        );
+    }
+}
+
+/// C-ABI export of [`decay_tick`] for direct invocation from embedder glue.
+#[cfg(target_arch = "wasm32")]
+#[no_mangle]
+pub extern "C" fn __jemallocator_decay_tick(now_ms: f64) {
+    decay_tick(now_ms);
+}
+
 /// Raw bindings to jemalloc
 mod ffi {
     pub use tikv_jemalloc_sys::*;

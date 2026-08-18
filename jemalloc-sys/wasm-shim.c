@@ -43,21 +43,31 @@ __attribute__((import_module("env"), import_name("__wbindgen_memory_discard")))
 extern void __wbindgen_memory_discard(void *addr, size_t len);
 
 int madvise(void *addr, size_t len, int advice) {
-    if (advice == MADV_DONTNEED) __wbindgen_memory_discard(addr, len);
+    if (advice != MADV_DONTNEED) { errno = EINVAL; return -1; }
+    __wbindgen_memory_discard(addr, len);
     return 0;
 }
 
 /*
- * jemalloc only consults the clock for decay-based purging; the baked
- * MALLOC_CONF uses dirty_decay_ms:0 (purge on free), so a synthetic
- * monotonic clock is sufficient.
+ * Host-pushed monotonic clock, consulted by jemalloc for decay-based purging.
+ * wasm has no clock; the embedder pushes wall time (e.g. Date.now()) via
+ * __jemalloc_wasm_set_time_ms, normalized to a 0 base and clamped monotonic.
+ * Between pushes time is frozen, so decay only progresses at push points
+ * (e.g. event boundaries), never mid-computation.
  */
-static uint64_t fake_ns = 0;
+static uint64_t wasm_clock_ns = 0;
+static double wasm_clock_base_ms = -1;
+void __jemalloc_wasm_set_time_ms(double ms) {
+    if (wasm_clock_base_ms < 0) wasm_clock_base_ms = ms;
+    double rel = ms - wasm_clock_base_ms;
+    if (rel <= 0) return;
+    uint64_t ns = (uint64_t)(rel * 1000000.0);
+    if (ns > wasm_clock_ns) wasm_clock_ns = ns;
+}
 int clock_gettime(clockid_t c, struct timespec *ts) {
     (void)c;
-    fake_ns += 1000000;
-    ts->tv_sec = fake_ns / 1000000000;
-    ts->tv_nsec = fake_ns % 1000000000;
+    ts->tv_sec = wasm_clock_ns / 1000000000;
+    ts->tv_nsec = wasm_clock_ns % 1000000000;
     return 0;
 }
 
