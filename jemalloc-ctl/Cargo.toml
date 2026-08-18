@@ -26,12 +26,12 @@ is-it-maintained-open-issues = { repository = "tikv/jemallocator" }
 maintenance = { status = "actively-developed" }
 
 [dependencies]
-tikv-jemalloc-sys = { path = "../jemalloc-sys", version = "0.7.0" }
+tikv-jemalloc-sys = { package = "jemalloc-sys-discard", path = "../jemalloc-sys", version = "0.7.0" }
 libc = { version = "0.2", default-features = false }
 paste = "1"
 
 [dev-dependencies]
-tikv-jemallocator = { path = "../jemallocator", version = "0.7.0" }
+tikv-jemallocator = { package = "jemallocator-discard", path = "../jemallocator", version = "0.7.0" }
 
 [features]
 default = []

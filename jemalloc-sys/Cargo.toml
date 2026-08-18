@@ -1,5 +1,5 @@
 [package]
-name = "tikv-jemalloc-sys"
+name = "jemalloc-sys-discard"
 version = "0.7.0+5.3.1-0-g81034ce1f1373e37dc865038e1bc8eeecf559ce8"
 authors = [
     "Alex Crichton <alex@alexcrichton.com>",
@@ -10,12 +10,12 @@ build = "build.rs"
 links = "jemalloc"
 license = "MIT/Apache-2.0"
 readme = "README.md"
-repository = "https://github.com/tikv/jemallocator"
-homepage = "https://github.com/tikv/jemallocator"
-documentation = "https://docs.rs/tikv-jemallocator-sys"
+repository = "https://github.com/guybedford/jemallocator-discard"
+homepage = "https://github.com/guybedford/jemallocator-discard"
+documentation = "https://docs.rs/jemalloc-sys-discard"
 keywords = ["allocator", "jemalloc"]
 description = """
-Rust FFI bindings to jemalloc
+Rust FFI bindings to jemalloc, with wasm32 memory discard support
 """
 edition = "2018"
 rust-version = "1.71.0"

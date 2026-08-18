@@ -8,7 +8,7 @@ publish = false
 
 [dependencies]
 libc = { version = "^0.2.8", default-features = false }
-tikv-jemalloc-sys = { path = "../jemalloc-sys" }
+tikv-jemalloc-sys = { package = "jemalloc-sys-discard", path = "../jemalloc-sys" }
 
 [build-dependencies]
 cc = "^1.0.13"
