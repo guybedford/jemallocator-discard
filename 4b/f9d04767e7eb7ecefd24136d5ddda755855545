@@ -1,0 +1,19 @@
+jemallocator/Cargo.toml
+  s_b490649d60dd4b::t_5d0fb238a01c23 4,40
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "4bf9d04767e7eb7ecefd24136d5ddda755855545",
+  "prompts": {},
+  "sessions": {
+    "s_b490649d60dd4b": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fea42c79cffevo9V30JblSsJ5H",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Guy Bedford <gbedford@cloudflare.com>"
+    }
+  }
+}
