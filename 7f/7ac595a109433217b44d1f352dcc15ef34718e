@@ -1,0 +1,31 @@
+jemalloc-sys/Cargo.toml
+  s_b490649d60dd4b::t_4ee8a1828f314b 3
+jemalloc-sys/configs/wasm32-unknown-unknown/include/jemalloc/internal/jemalloc_internal_defs.h
+  s_198ec66933957a::t_3e32f7f5efdd9b 453
+jemallocator/Cargo.toml
+  s_b490649d60dd4b::t_3c41575586f200 4
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "7f7ac595a109433217b44d1f352dcc15ef34718e",
+  "prompts": {},
+  "sessions": {
+    "s_198ec66933957a": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fea4208abffe5a0QL3IZ2mdRLf",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Guy Bedford <gbedford@cloudflare.com>"
+    },
+    "s_b490649d60dd4b": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fea42c79cffevo9V30JblSsJ5H",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Guy Bedford <gbedford@cloudflare.com>"
+    }
+  }
+}
